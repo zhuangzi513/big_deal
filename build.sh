@@ -28,6 +28,7 @@ ALL_SRC="
 ./filewrapper/TextFileParser.java
 ./dbhelper/DBHelper.java
 ./dbhelper/origin/DetailDealDBHelper.java
+./updator/DetailUpdator.java
 ./Main.java
 "
 

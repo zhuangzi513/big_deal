@@ -15,8 +15,9 @@ public class DBHelper<T extends TableRecord> {
     private static Connection mServerConnection;
 
     private static final String CHECK_TABLE_SQL_FORMAT = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '%s' AND table_name = '%s'";
-    private static final String CREATE_DATABASE_SQL_FORMAT = "CREATE DATABASE %s CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
+    private static final String CREATE_DATABASE_SQL_FORMAT = "CREATE DATABASE IF NOT EXISTS %s CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
     private static final String DELETE_DATABASE_SQL_FORMAT = "DROP DATABASE IF EXISTS %s";
+    private static final String LATEST_TABLE_IN_DATABSE_SQL_FORMAT = "SELECT table_name FROM information_schema.tables WHERE table_schema='%s' order by create_time DESC LIMIT 1;";
 
 
     private Connection mDBConnection;
@@ -138,5 +139,25 @@ public class DBHelper<T extends TableRecord> {
     }
 
     protected void checkTableExist(String tableName) {
+    }
+
+    public String getLatestTableName() {
+        
+        String strSQL = String.format(LATEST_TABLE_IN_DATABSE_SQL_FORMAT, mDBName);
+        if (mDBConnection != null) {
+            try {
+                Statement selectTableStmt = mDBConnection.createStatement();
+                ResultSet resultSet = selectTableStmt.executeQuery(strSQL);
+                if (resultSet.next()) {
+                    String latestTableName = resultSet.getString(1);
+                    System.out.println(latestTableName);
+                    return latestTableName;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
     }
 };

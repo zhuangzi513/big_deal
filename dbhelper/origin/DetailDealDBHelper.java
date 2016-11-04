@@ -15,19 +15,19 @@ public class DetailDealDBHelper extends DBHelper<DetailDealElement> {
 
     public void insertSingleDetailDealElementToTable(String table, DetailDealElement detailDealElement) {
         String insertSQL = String.format(INSERT_SQL, table);
-        System.out.println(insertSQL);
+        //System.out.println(insertSQL);
         insertSingleRecordsToTable(table, insertSQL, detailDealElement);
     }
 
     public void insertDetailDealElementsToTable(String table, Vector<DetailDealElement> detailDealElements) {
         String insertSQL = String.format(INSERT_SQL, table);
-        System.out.println(insertSQL);
+        //System.out.println(insertSQL);
         insertRecordsToTable(table, insertSQL, detailDealElements);
     }
 
     public void createOriginTable(String tableName) {
         String createTableSQL = String.format(CREATE_TABLE_SQL_FORMAT, tableName);
-        System.out.println(createTableSQL);
+        //System.out.println(createTableSQL);
         createTableForType(tableName, createTableSQL, DetailDealElement.class);
     }
 };

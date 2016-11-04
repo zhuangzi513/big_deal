@@ -35,8 +35,8 @@ public class TextFileParser extends FileParser {
 
             while ((textLine = bufferReader.readLine()) != null) {
                 singleElement = createDetailDealElementFromString(textLine);
-                System.out.println("singleElement");
-                singleElement.dump();
+                //System.out.println("singleElement");
+                //singleElement.dump();
                 mInnerDetailDealElements.add(singleElement);
             }
         } catch(Exception e) {
@@ -55,7 +55,7 @@ public class TextFileParser extends FileParser {
         //  Time       price    float   volume    turnover 
         //  09:31:00   22.00    0.01    20        20 * 22 * 100
         String [] tabSplited = textLine.split(TAB);
-        System.out.println(tabSplited.length);
+        //System.out.println(tabSplited.length);
         DetailDealElement retDetailDealElement = null;
         if (tabSplited.length == DEAL_PROPERTY_LENGTH) {
             String date     = tabSplited[0];
