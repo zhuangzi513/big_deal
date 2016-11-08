@@ -5,16 +5,42 @@ import common.DetailDealElement;
 import java.io.*;
 import java.util.Vector;
 
+import java.nio.ByteBuffer;  
+import java.nio.CharBuffer;  
+import java.nio.charset.Charset;  
+import java.nio.charset.CharsetDecoder;  
+
 
 public class TextFileParser extends FileParser {
-    private static final String BUY_IN_CHINESE = "买盘";
-    private static final String SAL_IN_CHINESE = "卖盘";
+    private static final String FILE_FORMAT = new String("gb2312");
+    private static String GB2312_BUY_IN_CHINESE = null;
+    private static String GB2312_SAL_IN_CHINESE = null;
+    private static final String SAL_BUY_FILE_PATCH = "./common/buy_sale";
+
     private static final String TAB = "	";
     private static final int DEAL_PROPERTY_LENGTH = 6;
     private String mFullFilePath;
     private Vector<DetailDealElement> mInnerDetailDealElements;
 
+    public void initStatic() {
+        try {
+            FileInputStream fileInputStream = new FileInputStream(SAL_BUY_FILE_PATCH);  
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);  
+            BufferedReader bufferReader = new BufferedReader (new InputStreamReader(bufferedInputStream, FILE_FORMAT)); 
+
+            GB2312_BUY_IN_CHINESE = bufferReader.readLine();
+            GB2312_SAL_IN_CHINESE = bufferReader.readLine();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public TextFileParser(String filePath) {
+        if (GB2312_BUY_IN_CHINESE != null
+            && GB2312_SAL_IN_CHINESE != null) {
+        } else {
+            initStatic();
+        }
         mFullFilePath = filePath;
         mInnerDetailDealElements = new Vector<DetailDealElement>();
     }
@@ -28,7 +54,9 @@ public class TextFileParser extends FileParser {
         String textLine = new String("");
         BufferedReader bufferReader = null;
         try {
-            bufferReader = new BufferedReader(new FileReader(mFullFilePath));
+            FileInputStream fileInputStream = new FileInputStream(mFullFilePath);
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+            bufferReader = new BufferedReader (new InputStreamReader(bufferedInputStream, FILE_FORMAT));
 
             //Skip first line
             bufferReader.readLine();
@@ -74,10 +102,19 @@ public class TextFileParser extends FileParser {
             }
             int volume     = Integer.valueOf(tabSplited[3]);
             int turnOver   = Integer.valueOf(tabSplited[4]);
+            String buyOrSale = tabSplited[5];
 
-            boolean isBuy = false;
-            if (tabSplited[5].equals(BUY_IN_CHINESE)) {
-                isBuy = true;
+            int isBuy = DetailDealElement.IS_BUY_DEFAULT;
+            try {
+                if (buyOrSale.equals(GB2312_BUY_IN_CHINESE)) {
+                    isBuy = DetailDealElement.IS_BUY_TRUE;
+                    //System.out.println("isBuy: true");
+                } else if (buyOrSale.equals(GB2312_SAL_IN_CHINESE)) {
+                    isBuy = DetailDealElement.IS_BUY_FALSE;
+                    //System.out.println("isBuy: false");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
 
             retDetailDealElement = new DetailDealElement(date, price, priceUp, volume, turnOver, isBuy);

@@ -23,12 +23,15 @@ done
 
 ALL_SRC="
 ./common/DetailDealElement.java
+./common/DetailFilterResult.java
 ./filewrapper/FileParser.java
 ./filewrapper/XLSFileParser.java
 ./filewrapper/TextFileParser.java
 ./dbhelper/DBHelper.java
 ./dbhelper/origin/DetailDealDBHelper.java
+./dbhelper/filter/DetailsFilterDBHelper.java
 ./updator/DetailUpdator.java
+./updator/FilterResultUpdator.java
 ./Main.java
 "
 

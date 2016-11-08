@@ -10,8 +10,6 @@ import java.util.*;
 
 public class DetailUpdator {
     private static final int DATE_STRING_LENGTH = 8;
-    private static final String DETAIL_DATABSE_NAMEPREFIX = "D";
-    private static final String DETAIL_TABLE_NAMEPREFIX = "D";
 
     private class UpdateRunnable {
         private String mStockId;
@@ -31,12 +29,11 @@ public class DetailUpdator {
                 String dateOfDetail = mAllExistingDetailFileList.get(i).replace("/", "");
                 int startPosOfPostFix = dateOfDetail.length() - 4;
                 dateOfDetail = dateOfDetail.substring(startPosOfPostFix - DATE_STRING_LENGTH, startPosOfPostFix);
-                //System.out.println(dateOfDetail);
-                dateOfDetail = DETAIL_TABLE_NAMEPREFIX + dateOfDetail;
+                System.out.println(dateOfDetail + ":" + latestDetailTableName);
 
                 if (latestDetailTableName != null &&
                     latestDetailTableName.compareTo(dateOfDetail) >= 0) {
-                     System.out.println(dateOfDetail);
+                    //System.out.println(dateOfDetail);
                     //ALREADY A TABLE IN DATABSE CORRESPONDING TO THE DETAILFILE, SKIP
                     continue;
                 }
@@ -112,7 +109,7 @@ public class DetailUpdator {
         String stockId = dirForOneStock.substring(lengthOfStockDetails - 6, lengthOfStockDetails);
         System.out.println("stock id: " + stockId);
         if (existingDetailFiles != null) {
-            UpdateRunnable detailUpdateRunnable = new UpdateRunnable(DETAIL_DATABSE_NAMEPREFIX + stockId, existingDetailFiles);
+            UpdateRunnable detailUpdateRunnable = new UpdateRunnable(stockId, existingDetailFiles);
             detailUpdateRunnable.run();
         }
     }

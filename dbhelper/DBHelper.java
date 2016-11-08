@@ -18,6 +18,7 @@ public class DBHelper<T extends TableRecord> {
     private static final String CREATE_DATABASE_SQL_FORMAT = "CREATE DATABASE IF NOT EXISTS %s CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
     private static final String DELETE_DATABASE_SQL_FORMAT = "DROP DATABASE IF EXISTS %s";
     private static final String LATEST_TABLE_IN_DATABSE_SQL_FORMAT = "SELECT table_name FROM information_schema.tables WHERE table_schema='%s' order by create_time DESC LIMIT 1;";
+    private static final String TABLES_IN_DATABSE_SQL_FORMAT = "SELECT table_name FROM information_schema.tables WHERE table_schema='%s' order by  table_name;";
 
 
     private Connection mDBConnection;
@@ -108,6 +109,7 @@ public class DBHelper<T extends TableRecord> {
     }
 
     protected void insertRecordsToTable(String table, String sqlFormat, Vector<T> rawRecords) {
+        System.out.println(sqlFormat + " records inserted");
         try {
             mDBConnection.setAutoCommit(false);
             PreparedStatement insertStatement = mDBConnection.prepareStatement(sqlFormat);
@@ -141,17 +143,51 @@ public class DBHelper<T extends TableRecord> {
     protected void checkTableExist(String tableName) {
     }
 
-    public String getLatestTableName() {
+    protected ResultSet selectColsFromTable(String tableName, String selectSQL) {
+        if (mDBConnection != null) {
+            try {
+                Statement selectColsStmt = mDBConnection.createStatement();
+                return selectColsStmt.executeQuery(selectSQL);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+    protected ResultSet getAllExistingTables() {
+        String getAllTables = String.format(TABLES_IN_DATABSE_SQL_FORMAT, mDBName);
+        if (mDBConnection != null) {
+            try {
+                Statement selectTableStmt = mDBConnection.createStatement();
+                return selectTableStmt.executeQuery(getAllTables);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.exit(2);
+            }
+        }
+
+        return null;
+    }
+
+    public Vector<T> getAllInnerElementsFromTable(String tableName) {
+        return null;
+    }
+
+    protected String getLatestTableName(String tableNamePrefix) {
         
         String strSQL = String.format(LATEST_TABLE_IN_DATABSE_SQL_FORMAT, mDBName);
         if (mDBConnection != null) {
             try {
                 Statement selectTableStmt = mDBConnection.createStatement();
                 ResultSet resultSet = selectTableStmt.executeQuery(strSQL);
-                if (resultSet.next()) {
+                while (resultSet.next()) {
                     String latestTableName = resultSet.getString(1);
-                    System.out.println(latestTableName);
-                    return latestTableName;
+                    //System.out.println(latestTableName);
+                    if (latestTableName.startsWith(tableNamePrefix)) {
+                        return latestTableName;
+                    }
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

@@ -3,14 +3,17 @@ package common;
 import java.sql.*;
 
 public class DetailDealElement extends TableRecord {
-    String mDate;
-    float mPrice;
-    float mPriceUp;
-    int mVolume;
-    int mTurnOver;
-    boolean mIsBuy;
+    public static final int IS_BUY_DEFAULT = -1;
+    public static final int IS_BUY_TRUE = 1;
+    public static final int IS_BUY_FALSE = 2;
+    public final String mDate;
+    public final float mPrice;
+    public final float mPriceUp;
+    public final int mVolume;
+    public final int mTurnOver;
+    public final int mIsBuy;
 
-    public DetailDealElement(String date, float price, float priceUp, int volume, int turnOver, boolean isBuy) {
+    public DetailDealElement(String date, float price, float priceUp, int volume, int turnOver, int isBuy) {
         mDate = date;
         mPrice = price;
         mVolume = volume;
@@ -25,7 +28,7 @@ public class DetailDealElement extends TableRecord {
         insertStatement.setFloat(3, mPriceUp);
         insertStatement.setInt(4, mVolume);
         insertStatement.setInt(5, mTurnOver);
-        insertStatement.setBoolean(6, mIsBuy);
+        insertStatement.setInt(6, mIsBuy);
     }
 
     public void dump() {
