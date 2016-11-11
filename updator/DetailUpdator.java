@@ -29,7 +29,7 @@ public class DetailUpdator {
                 String dateOfDetail = mAllExistingDetailFileList.get(i).replace("/", "");
                 int startPosOfPostFix = dateOfDetail.length() - 4;
                 dateOfDetail = dateOfDetail.substring(startPosOfPostFix - DATE_STRING_LENGTH, startPosOfPostFix);
-                System.out.println(dateOfDetail + ":" + latestDetailTableName);
+                //System.out.println(dateOfDetail + ":" + latestDetailTableName);
 
                 if (latestDetailTableName != null &&
                     latestDetailTableName.compareTo(dateOfDetail) >= 0) {
@@ -86,11 +86,6 @@ public class DetailUpdator {
                  int detailsFilesLength = strDetailFiles.length;
                  for (int k = 0; k < detailsFilesLength; k++) {
                       String strSingleDetailFile = strSingleMonthDir + "/" + strDetailFiles[k];
-                      //String tableNameForDetailFile = strSingleDetailFile.replace("/","");
-                      //int startPosOfPostFix = tableNameForDetailFile.indexOf(".");
-                      //tableNameForDetailFile = tableNameForDetailFile.substring(STOCK_ID_LENGTH, startPosOfPostFix);
-                      System.out.println(strSingleDetailFile);
-                      //allExistingDetailFiles.add(tableNameForDetailFile);
                       allExistingDetailFiles.add(strSingleDetailFile);
                  }
             }

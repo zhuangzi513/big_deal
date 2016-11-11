@@ -32,6 +32,7 @@ ALL_SRC="
 ./dbhelper/filter/DetailsFilterDBHelper.java
 ./updator/DetailUpdator.java
 ./updator/FilterResultUpdator.java
+./search/FilterResultInterface.java
 ./Main.java
 "
 

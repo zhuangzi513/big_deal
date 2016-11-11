@@ -54,28 +54,79 @@ public class DetailFilterResult extends TableRecord {
 
     public static DetailFilterResult sumOfChildDetailFilterResults(Vector<DetailFilterResult> childDetailFilterResults) {
         int sizeOfFilterResults = childDetailFilterResults.size();
-        int   tW10BuyVolume = 0, tW10SalVolume = 0, tW10TurnOverBuy = 0, tW10TurnOverSale = 0;
+        int   tW10VolumeBuy = 0, tW10VolumeSal = 0, tW10TurnOverBuy = 0, tW10TurnOverSale = 0;
         float tW10PriceBuy  = 0.0f, tW10PriceSale = 0.0f;
 
-        int   tW20BuyVolume = 0, tW20SalVolume = 0, tW20TurnOverBuy = 0, tW20TurnOverSale = 0;
+        int   tW20VolumeBuy = 0, tW20VolumeSal = 0, tW20TurnOverBuy = 0, tW20TurnOverSale = 0;
         float tW20PriceBuy  = 0.0f, tW20PriceSale = 0.0f;
 
-        int   tW40BuyVolume = 0, tW40SalVolume = 0, tW40TurnOverBuy = 0, tW40TurnOverSale = 0;
+        int   tW40VolumeBuy = 0, tW40VolumeSal = 0, tW40TurnOverBuy = 0, tW40TurnOverSale = 0;
         float tW40PriceBuy  = 0.0f, tW40PriceSale = 0.0f;
 
-        int   tW80BuyVolume = 0, tW80SalVolume = 0, tW80TurnOverBuy = 0, tW80TurnOverSale = 0;
+        int   tW80VolumeBuy = 0, tW80VolumeSal = 0, tW80TurnOverBuy = 0, tW80TurnOverSale = 0;
         float tW80PriceBuy  = 0.0f, tW80PriceSale = 0.0f;
 
-        int   tMTW80BuyVolume = 0, tMTW80SalVolume = 0, tMTW80TurnOverBuy = 0, tMTW80TurnOverSale = 0;
+        int   tMTW80VolumeBuy = 0, tMTW80VolumeSal = 0, tMTW80TurnOverBuy = 0, tMTW80TurnOverSale = 0;
         float tMTW80PriceBuy  = 0.0f, tMTW80PriceSale = 0.0f;
 
         DetailFilterResult singleDetailFilterResult = null;
+        String date = new String("");;
+        if (sizeOfFilterResults > 0) {
+            System.out.println( childDetailFilterResults.get(0).mDate);
+            date += childDetailFilterResults.get(0).mDate.substring(4, 8);
+            date += "-";
+            System.out.println( childDetailFilterResults.get(sizeOfFilterResults - 1).mDate);
+            date += childDetailFilterResults.get(sizeOfFilterResults - 1).mDate.substring(4, 8);
+        }
         for (int i = 0; i < sizeOfFilterResults; ++i) {
             singleDetailFilterResult = childDetailFilterResults.get(i);
-            //tW10BuyVolume    +=  singleDetailFilterResult.
+
+            tW10VolumeBuy      += singleDetailFilterResult.mW10VolumeBuy;
+            tW10TurnOverBuy    += singleDetailFilterResult.mW10TurnOverBuy;    
+            tW10VolumeSal      += singleDetailFilterResult.mW10VolumeSale;
+            tW10TurnOverSale   += singleDetailFilterResult.mW10TurnOverSale;
+
+            tW20VolumeBuy      += singleDetailFilterResult.mW20VolumeBuy;
+            tW20TurnOverBuy    += singleDetailFilterResult.mW20TurnOverBuy;    
+            tW20VolumeSal      += singleDetailFilterResult.mW20VolumeSale;
+            tW20TurnOverSale   += singleDetailFilterResult.mW20TurnOverSale;
+
+            tW40VolumeBuy      += singleDetailFilterResult.mW40VolumeBuy;
+            tW40TurnOverBuy    += singleDetailFilterResult.mW40TurnOverBuy;    
+            tW40VolumeSal      += singleDetailFilterResult.mW40VolumeSale;
+            tW40TurnOverSale   += singleDetailFilterResult.mW40TurnOverSale;
+
+            tW80VolumeBuy      += singleDetailFilterResult.mW80VolumeBuy;
+            tW80TurnOverBuy    += singleDetailFilterResult.mW80TurnOverBuy;    
+            tW80VolumeSal      += singleDetailFilterResult.mW80VolumeSale;
+            tW80TurnOverSale   += singleDetailFilterResult.mW80TurnOverSale;
+
+            tMTW80VolumeBuy    += singleDetailFilterResult.mMTW80VolumeBuy;
+            tMTW80TurnOverBuy  += singleDetailFilterResult.mMTW80TurnOverBuy;    
+            tMTW80VolumeSal    += singleDetailFilterResult.mMTW80VolumeSale;
+            tMTW80TurnOverSale += singleDetailFilterResult.mMTW80TurnOverSale;
         }
 
-        return singleDetailFilterResult;
+        tW10PriceBuy  = tW10TurnOverBuy /(tW10VolumeBuy * 100 + 1.0f);
+        tW10PriceSale = tW10TurnOverSale/(tW10VolumeSal * 100 + 1.0f);
+
+        tW20PriceBuy  = tW20TurnOverBuy /(tW20VolumeBuy * 100 + 1.0f);
+        tW20PriceSale = tW20TurnOverSale/(tW20VolumeSal * 100 + 1.0f);
+
+        tW40PriceBuy  = tW40TurnOverBuy /(tW40VolumeBuy * 100 + 1.0f);
+        tW40PriceSale = tW40TurnOverSale/(tW40VolumeSal * 100 + 1.0f);
+
+        tW80PriceBuy  = tW80TurnOverBuy /(tW80VolumeBuy * 100 + 1.0f);
+        tW80PriceSale = tW80TurnOverSale/(tW80VolumeSal * 100 + 1.0f);
+
+        tMTW80PriceBuy  = tMTW80TurnOverBuy /(tMTW80VolumeBuy * 100 + 1.0f);
+        tMTW80PriceSale = tMTW80TurnOverSale/(tMTW80VolumeSal * 100 + 1.0f);
+        return new DetailFilterResult(date,
+                                      tW10PriceBuy,   tW10VolumeBuy,   tW10TurnOverBuy,   tW10PriceSale,   tW10VolumeSal,   tW10TurnOverSale,
+                                      tW20PriceBuy,   tW20VolumeBuy,   tW20TurnOverBuy,   tW20PriceSale,   tW20VolumeSal,   tW20TurnOverSale,
+                                      tW40PriceBuy,   tW40VolumeBuy,   tW40TurnOverBuy,   tW40PriceSale,   tW40VolumeSal,   tW40TurnOverSale,
+                                      tW80PriceBuy,   tW80VolumeBuy,   tW80TurnOverBuy,   tW80PriceSale,   tW80VolumeSal,   tW80TurnOverSale,
+                                      tMTW80PriceBuy, tMTW80VolumeBuy, tMTW80TurnOverBuy, tMTW80PriceSale, tMTW80VolumeSal, tMTW80TurnOverSale);
     }
 
     public DetailFilterResult(ResultSet resultSet) throws SQLException {
@@ -200,31 +251,46 @@ public class DetailFilterResult extends TableRecord {
 
     public void dump() {
         String element = new String("");
-        element += " mDate            =: " + mDate           ;
-        element += " mW10PriceBuy     =: " + mW10PriceBuy    ;
-        element += " mW10TurnOverBuy  =: " + mW10TurnOverBuy ;
-        element += " mW10PriceSale    =: " + mW10PriceSale   ;
-        element += " mW10TurnOverSale =: " + mW10TurnOverSale;
+        element += " \nmDate            =: " + mDate           ;
+        element += " \nmW10PriceBuy     =: " + mW10PriceBuy    ;
+        element += " \nmW10VolumeBuy    =: " + mW10VolumeBuy   ;
+        element += " \nmW10TurnOverBuy  =: " + mW10TurnOverBuy ;
+        element += " \nmW10PriceSale    =: " + mW10PriceSale   ;
+        element += " \nmW10VolumeSale   =: " + mW10VolumeSale  ;
+        element += " \nmW10TurnOverSale =: " + mW10TurnOverSale;
+        element += "\n";
 
-        element += " mW20PriceBuy     =: " + mW20PriceBuy    ;
-        element += " mW20TurnOverBuy  =: " + mW20TurnOverBuy ;
-        element += " mW20PriceSale    =: " + mW20PriceSale   ;
-        element += " mW20TurnOverSale =: " + mW20TurnOverSale;
+        element += " \nmW20PriceBuy     =: " + mW20PriceBuy    ;
+        element += " \nmW20VolumeBuy    =: " + mW20VolumeBuy   ;
+        element += " \nmW20TurnOverBuy  =: " + mW20TurnOverBuy ;
+        element += " \nmW20PriceSale    =: " + mW20PriceSale   ;
+        element += " \nmW20VolumeSale   =: " + mW20VolumeSale  ;
+        element += " \nmW20TurnOverSale =: " + mW20TurnOverSale;
+        element += "\n";
 
-        element += " mW40PriceBuy     =: " + mW40PriceBuy    ;
-        element += " mW40TurnOverBuy  =: " + mW40TurnOverBuy ;
-        element += " mW40PriceSale    =: " + mW40PriceSale   ;
-        element += " mW40TurnOverSale =: " + mW40TurnOverSale;
+        element += " \nmW40PriceBuy     =: " + mW40PriceBuy    ;
+        element += " \nmW40VolumeBuy    =: " + mW40VolumeBuy   ;
+        element += " \nmW40TurnOverBuy  =: " + mW40TurnOverBuy ;
+        element += " \nmW40PriceSale    =: " + mW40PriceSale   ;
+        element += " \nmW40VolumeSale   =: " + mW40VolumeSale  ;
+        element += " \nmW40TurnOverSale =: " + mW40TurnOverSale;
+        element += "\n";
 
-        element += " mW80PriceBuy     =: " + mW80PriceBuy    ;
-        element += " mW80TurnOverBuy  =: " + mW80TurnOverBuy ;
-        element += " mW80PriceSale    =: " + mW80PriceSale   ;
-        element += " mW80TurnOverSale =: " + mW80TurnOverSale;
+        element += " \nmW80PriceBuy     =: " + mW80PriceBuy    ;
+        element += " \nmW80VolumeBuy    =: " + mW80VolumeBuy   ;
+        element += " \nmW80TurnOverBuy  =: " + mW80TurnOverBuy ;
+        element += " \nmW80PriceSale    =: " + mW80PriceSale   ;
+        element += " \nmW80VolumeSale   =: " + mW80VolumeSale  ;
+        element += " \nmW80TurnOverSale =: " + mW80TurnOverSale;
+        element += "\n";
 
-        element += " mMTW80PriceBuy     =: " + mMTW80PriceBuy    ;
-        element += " mMTW80TurnOverBuy  =: " + mMTW80TurnOverBuy ;
-        element += " mMTW80PriceSale    =: " + mMTW80PriceSale   ;
-        element += " mMTW80TurnOverSale =: " + mMTW80TurnOverSale;
+        element += " \nmMTW80PriceBuy     =: " + mMTW80PriceBuy    ;
+        element += " \nmMTW80VolumeBuy    =: " + mMTW80VolumeBuy   ;
+        element += " \nmMTW80TurnOverBuy  =: " + mMTW80TurnOverBuy ;
+        element += " \nmMTW80PriceSale    =: " + mMTW80PriceSale   ;
+        element += " \nmMTW80VolumeSale   =: " + mMTW80VolumeSale  ;
+        element += " \nmMTW80TurnOverSale =: " + mMTW80TurnOverSale;
+        element += "\n";
         System.out.println(element);
     }
 };

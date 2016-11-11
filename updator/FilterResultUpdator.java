@@ -69,18 +69,20 @@ public class FilterResultUpdator {
                 if (devideBy10W <= 0) {
                     continue;
                 }
-                ////System.out.println("devideBy10W: " + devideBy10W);
+                //System.out.println("devideBy10W: " + devideBy10W);
                 switch (devideBy10W) {
                    //10W
                    case 1:
-                   //System.out.println("10W");
                    if (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_TRUE) {
                        tW10VolumeBuy += detailDealElement.mVolume;
                        tW10TurnOverBuy += detailDealElement.mTurnOver;
-                   } else if (detailDealElement.mIsBuy != DetailDealElement.IS_BUY_FALSE) {
+                   } else if (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_FALSE) {
                        tW10VolumeSale += detailDealElement.mVolume;
                        tW10TurnOverSale += detailDealElement.mTurnOver;
                    }
+                   ////System.out.println("10W IsBuy:" + (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_TRUE));
+                   ////System.out.println("10W Volume:" + detailDealElement.mVolume);
+                   ////System.out.println("10W ==> VolumeBuy:" + tW10VolumeBuy + " VolumeSale: " + tW10VolumeSale);
                    break; 
          
 
@@ -90,7 +92,7 @@ public class FilterResultUpdator {
                    if (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_TRUE) {
                        tW20VolumeBuy += detailDealElement.mVolume;
                        tW20TurnOverBuy += detailDealElement.mTurnOver;
-                   } else if (detailDealElement.mIsBuy != DetailDealElement.IS_BUY_FALSE) {
+                   } else if (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_FALSE) {
                        tW20VolumeSale += detailDealElement.mVolume;
                        tW20TurnOverSale += detailDealElement.mTurnOver;
                    }
@@ -103,7 +105,7 @@ public class FilterResultUpdator {
                    if (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_TRUE) {
                        tW40VolumeBuy += detailDealElement.mVolume;
                        tW40TurnOverBuy += detailDealElement.mTurnOver;
-                   } else if (detailDealElement.mIsBuy != DetailDealElement.IS_BUY_FALSE) {
+                   } else if (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_FALSE) {
                        tW40VolumeSale += detailDealElement.mVolume;
                        tW40TurnOverSale += detailDealElement.mTurnOver;
                    }
@@ -118,7 +120,7 @@ public class FilterResultUpdator {
                    if (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_TRUE) {
                        tW80VolumeBuy += detailDealElement.mVolume;
                        tW80TurnOverBuy += detailDealElement.mTurnOver;
-                   } else if (detailDealElement.mIsBuy != DetailDealElement.IS_BUY_FALSE) {
+                   } else if (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_FALSE) {
                        tW80VolumeSale += detailDealElement.mVolume;
                        tW80TurnOverSale += detailDealElement.mTurnOver;
                    }
@@ -126,11 +128,11 @@ public class FilterResultUpdator {
 
                    //>80W
                    default:
-                       ////System.out.println("more than 80W");
+                       //System.out.println("more than 80W");
                        if (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_TRUE) {
                            tMTW80VolumeBuy += detailDealElement.mVolume;
                            tMTW80TurnOverBuy += detailDealElement.mTurnOver;
-                       } else if (detailDealElement.mIsBuy != DetailDealElement.IS_BUY_FALSE) {
+                       } else if (detailDealElement.mIsBuy == DetailDealElement.IS_BUY_FALSE) {
                            tMTW80VolumeSale += detailDealElement.mVolume;
                            tMTW80TurnOverSale += detailDealElement.mTurnOver;
                        }
