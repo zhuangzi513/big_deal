@@ -4,14 +4,16 @@ import updator.FilterResultUpdator;
 import filewrapper.TextFileParser;
 import updator.DetailUpdator;
 import search.FilterResultInterface;
+import search.FilterResultInterface.SearchItem;
 
 import java.io.File;
+import java.util.Vector;
 
 public class Main {
     //For test only
     public static void main(String[] args)  {
         try {
-            String detailsPath = "./details";
+            String detailsPath = "../../stock/details";
             File detailsDir = new File(detailsPath);
             if (!detailsDir.isDirectory()) {
                 return;
@@ -29,9 +31,14 @@ public class Main {
                 updator.doUpdate(strSingleYearDir);
             }
 
-            FilterResultUpdator filterResultUpdator = new FilterResultUpdator();
-            filterResultUpdator.doSingleUpdate("000581");
-            FilterResultInterface.getFilterResultForStockBetweenDate("000581", "20160930", "20161030");
+            //FilterResultUpdator filterResultUpdator = new FilterResultUpdator();
+            //filterResultUpdator.doSingleUpdate("600165");
+
+            //Vector<SearchItem> searchItems = new Vector<SearchItem>();
+            //SearchItem s165 = new FilterResultInterface.SearchItem("600165", "20160330", "20160930", "20161114");
+            //searchItems.add(s165);
+            //FilterResultInterface.getTargetFrom(searchItems);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

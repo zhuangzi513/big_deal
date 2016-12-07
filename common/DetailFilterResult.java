@@ -41,6 +41,10 @@ public class DetailFilterResult extends TableRecord {
     private int   mMTW80VolumeSale;
     private int   mMTW80TurnOverSale;
 
+    public static boolean sendLowerThanFirst(DetailFilterResult first, DetailFilterResult second) {
+        return first.avgDealPriceW() > second.avgDealPriceW();
+    }
+
     public static DetailFilterResult constructFromResultSet(ResultSet resultSet) {
         DetailFilterResult detailFilterResult = null;
         try {
@@ -251,46 +255,100 @@ public class DetailFilterResult extends TableRecord {
 
     public void dump() {
         String element = new String("");
-        element += " \nmDate            =: " + mDate           ;
-        element += " \nmW10PriceBuy     =: " + mW10PriceBuy    ;
-        element += " \nmW10VolumeBuy    =: " + mW10VolumeBuy   ;
-        element += " \nmW10TurnOverBuy  =: " + mW10TurnOverBuy ;
-        element += " \nmW10PriceSale    =: " + mW10PriceSale   ;
-        element += " \nmW10VolumeSale   =: " + mW10VolumeSale  ;
-        element += " \nmW10TurnOverSale =: " + mW10TurnOverSale;
+        element += " \n日期区间         =: " + mDate           ;
+        element += " \n单笔10W 买入价       =: " + mW10PriceBuy    ;
+        element += " \n单笔10W 买入成交量   =: " + mW10VolumeBuy   ;
+        element += " \n单笔10W 买入金额     =: " + mW10TurnOverBuy ;
+        element += " \n单笔10W 卖出价       =: " + mW10PriceSale   ;
+        element += " \n单笔10W 卖出成交量   =: " + mW10VolumeSale  ;
+        element += " \n单笔10W 卖出金额     =: " + mW10TurnOverSale;
         element += "\n";
 
-        element += " \nmW20PriceBuy     =: " + mW20PriceBuy    ;
-        element += " \nmW20VolumeBuy    =: " + mW20VolumeBuy   ;
-        element += " \nmW20TurnOverBuy  =: " + mW20TurnOverBuy ;
-        element += " \nmW20PriceSale    =: " + mW20PriceSale   ;
-        element += " \nmW20VolumeSale   =: " + mW20VolumeSale  ;
-        element += " \nmW20TurnOverSale =: " + mW20TurnOverSale;
+        element += " \n单笔10-20W 买入价       =: " + mW20PriceBuy    ;
+        element += " \n单笔10-20W 买入成交量   =: " + mW20VolumeBuy   ;
+        element += " \n单笔10-20W 买入金额     =: " + mW20TurnOverBuy ;
+        element += " \n单笔10-20W 卖出价       =: " + mW20PriceSale   ;
+        element += " \n单笔10-20W 卖出成交量   =: " + mW20VolumeSale  ;
+        element += " \n单笔10-20W 卖出金额     =: " + mW20TurnOverSale;
         element += "\n";
 
-        element += " \nmW40PriceBuy     =: " + mW40PriceBuy    ;
-        element += " \nmW40VolumeBuy    =: " + mW40VolumeBuy   ;
-        element += " \nmW40TurnOverBuy  =: " + mW40TurnOverBuy ;
-        element += " \nmW40PriceSale    =: " + mW40PriceSale   ;
-        element += " \nmW40VolumeSale   =: " + mW40VolumeSale  ;
-        element += " \nmW40TurnOverSale =: " + mW40TurnOverSale;
+        element += " \n单笔20-40W 买入价       =: " + mW40PriceBuy    ;
+        element += " \n单笔20-40W 买入成交量   =: " + mW40VolumeBuy   ;
+        element += " \n单笔20-40W 买入金额     =: " + mW40TurnOverBuy ;
+        element += " \n单笔20-40W 卖出价       =: " + mW40PriceSale   ;
+        element += " \n单笔20-40W 卖出成交量   =: " + mW40VolumeSale  ;
+        element += " \n单笔20-40W 卖出金额     =: " + mW40TurnOverSale;
         element += "\n";
 
-        element += " \nmW80PriceBuy     =: " + mW80PriceBuy    ;
-        element += " \nmW80VolumeBuy    =: " + mW80VolumeBuy   ;
-        element += " \nmW80TurnOverBuy  =: " + mW80TurnOverBuy ;
-        element += " \nmW80PriceSale    =: " + mW80PriceSale   ;
-        element += " \nmW80VolumeSale   =: " + mW80VolumeSale  ;
-        element += " \nmW80TurnOverSale =: " + mW80TurnOverSale;
+        element += " \n单笔40-80W 买入价       =: " + mW80PriceBuy    ;
+        element += " \n单笔40-80W 买入成交量   =: " + mW80VolumeBuy   ;
+        element += " \n单笔40-80W 买入金额     =: " + mW80TurnOverBuy ;
+        element += " \n单笔40-80W 卖出价       =: " + mW80PriceSale   ;
+        element += " \n单笔40-80W 卖出成交量   =: " + mW80VolumeSale  ;
+        element += " \n单笔40-80W 卖出金额     =: " + mW80TurnOverSale;
         element += "\n";
 
-        element += " \nmMTW80PriceBuy     =: " + mMTW80PriceBuy    ;
-        element += " \nmMTW80VolumeBuy    =: " + mMTW80VolumeBuy   ;
-        element += " \nmMTW80TurnOverBuy  =: " + mMTW80TurnOverBuy ;
-        element += " \nmMTW80PriceSale    =: " + mMTW80PriceSale   ;
-        element += " \nmMTW80VolumeSale   =: " + mMTW80VolumeSale  ;
-        element += " \nmMTW80TurnOverSale =: " + mMTW80TurnOverSale;
+        element += " \n单笔>80W 买入价       =: " + mMTW80PriceBuy    ;
+        element += " \n单笔>80W 买入成交量   =: " + mMTW80VolumeBuy   ;
+        element += " \n单笔>80W 买入金额     =: " + mMTW80TurnOverBuy ;
+        element += " \n单笔>80W 卖出价       =: " + mMTW80PriceSale   ;
+        element += " \n单笔>80W 卖出成交量   =: " + mMTW80VolumeSale  ;
+        element += " \n单笔>80W 卖出金额     =: " + mMTW80TurnOverSale;
         element += "\n";
         System.out.println(element);
+
+        //element += " \nmDate            =: " + mDate           ;
+        //element += " \nmW10PriceBuy     =: " + mW10PriceBuy    ;
+        //element += " \nmW10VolumeBuy    =: " + mW10VolumeBuy   ;
+        //element += " \nmW10TurnOverBuy  =: " + mW10TurnOverBuy ;
+        //element += " \nmW10PriceSale    =: " + mW10PriceSale   ;
+        //element += " \nmW10VolumeSale   =: " + mW10VolumeSale  ;
+        //element += " \nmW10TurnOverSale =: " + mW10TurnOverSale;
+        //element += "\n";
+
+        //element += " \nmW20PriceBuy     =: " + mW20PriceBuy    ;
+        //element += " \nmW20VolumeBuy    =: " + mW20VolumeBuy   ;
+        //element += " \nmW20TurnOverBuy  =: " + mW20TurnOverBuy ;
+        //element += " \nmW20PriceSale    =: " + mW20PriceSale   ;
+        //element += " \nmW20VolumeSale   =: " + mW20VolumeSale  ;
+        //element += " \nmW20TurnOverSale =: " + mW20TurnOverSale;
+        //element += "\n";
+
+        //element += " \nmW40PriceBuy     =: " + mW40PriceBuy    ;
+        //element += " \nmW40VolumeBuy    =: " + mW40VolumeBuy   ;
+        //element += " \nmW40TurnOverBuy  =: " + mW40TurnOverBuy ;
+        //element += " \nmW40PriceSale    =: " + mW40PriceSale   ;
+        //element += " \nmW40VolumeSale   =: " + mW40VolumeSale  ;
+        //element += " \nmW40TurnOverSale =: " + mW40TurnOverSale;
+        //element += "\n";
+
+        //element += " \nmW80PriceBuy     =: " + mW80PriceBuy    ;
+        //element += " \nmW80VolumeBuy    =: " + mW80VolumeBuy   ;
+        //element += " \nmW80TurnOverBuy  =: " + mW80TurnOverBuy ;
+        //element += " \nmW80PriceSale    =: " + mW80PriceSale   ;
+        //element += " \nmW80VolumeSale   =: " + mW80VolumeSale  ;
+        //element += " \nmW80TurnOverSale =: " + mW80TurnOverSale;
+        //element += "\n";
+
+        //element += " \nmMTW80PriceBuy     =: " + mMTW80PriceBuy    ;
+        //element += " \nmMTW80VolumeBuy    =: " + mMTW80VolumeBuy   ;
+        //element += " \nmMTW80TurnOverBuy  =: " + mMTW80TurnOverBuy ;
+        //element += " \nmMTW80PriceSale    =: " + mMTW80PriceSale   ;
+        //element += " \nmMTW80VolumeSale   =: " + mMTW80VolumeSale  ;
+        //element += " \nmMTW80TurnOverSale =: " + mMTW80TurnOverSale;
+        //element += "\n";
+        //System.out.println(element);
+    }
+
+    private final float avgDealPriceW() {
+        return ( mW10TurnOverBuy + mW10TurnOverSale
+                 + mW20TurnOverBuy + mW20TurnOverSale
+                 + mW40TurnOverBuy + mW40TurnOverSale
+                 + mW80TurnOverBuy + mW80TurnOverSale) /
+               ( mW10VolumeBuy + mW10VolumeSale 
+                 + mW20VolumeBuy + mW20VolumeSale 
+                 + mW40VolumeBuy + mW40VolumeSale 
+                 + mW80VolumeBuy + mW80VolumeSale
+                 + 1.0f);
     }
 };

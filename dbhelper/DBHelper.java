@@ -109,7 +109,7 @@ public class DBHelper<T extends TableRecord> {
     }
 
     protected void insertRecordsToTable(String table, String sqlFormat, Vector<T> rawRecords) {
-        System.out.println(sqlFormat + " records inserted");
+        //System.out.println(sqlFormat + " records inserted");
         try {
             mDBConnection.setAutoCommit(false);
             PreparedStatement insertStatement = mDBConnection.prepareStatement(sqlFormat);
