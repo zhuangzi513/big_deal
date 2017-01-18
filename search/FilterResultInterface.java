@@ -22,6 +22,7 @@ public class FilterResultInterface {
     };
 
     private static boolean shouldBeCountedOn(SearchItem singleItem) {
+        System.out.println(singleItem.mStockId);
         DetailsFilterDBHelper detailsFilterDBHelper = new DetailsFilterDBHelper(singleItem.mStockId);
         Vector<DetailFilterResult> targetDetailFilterResults = detailsFilterDBHelper.getFilterResultsForDate(singleItem.mDateBegin, singleItem.mDateEnd);
         Vector<DetailFilterResult> tipDetailFilterResults = detailsFilterDBHelper.getFilterResultsForDate(singleItem.mDateEnd, singleItem.mDateNow);
@@ -30,6 +31,8 @@ public class FilterResultInterface {
         DetailFilterResult sumTipDetailFilterResult = DetailFilterResult.sumOfChildDetailFilterResults(tipDetailFilterResults);
         sumTargetDetailFilterResult.dump();
         sumTipDetailFilterResult.dump();
+
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>");
         
         if (DetailFilterResult.sendLowerThanFirst(sumTargetDetailFilterResult, sumTipDetailFilterResult)) {
             sumTargetDetailFilterResult.dump();

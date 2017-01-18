@@ -76,10 +76,10 @@ public class DetailFilterResult extends TableRecord {
         DetailFilterResult singleDetailFilterResult = null;
         String date = new String("");;
         if (sizeOfFilterResults > 0) {
-            System.out.println( childDetailFilterResults.get(0).mDate);
+            //System.out.println( childDetailFilterResults.get(0).mDate);
             date += childDetailFilterResults.get(0).mDate.substring(4, 8);
             date += "-";
-            System.out.println( childDetailFilterResults.get(sizeOfFilterResults - 1).mDate);
+            //System.out.println( childDetailFilterResults.get(sizeOfFilterResults - 1).mDate);
             date += childDetailFilterResults.get(sizeOfFilterResults - 1).mDate.substring(4, 8);
         }
         for (int i = 0; i < sizeOfFilterResults; ++i) {

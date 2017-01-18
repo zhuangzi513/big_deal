@@ -1,27 +1,33 @@
-package updator;
-
-import common.DetailDealElement;
+package updator; import common.DetailDealElement;
 import dbhelper.origin.DetailDealDBHelper;
 import filewrapper.TextFileParser;
 
 
 import java.io.File;
 import java.util.*;
+import java.text.SimpleDateFormat;
+
+import java.lang.Runnable;
+import java.util.concurrent.ExecutorService;  
+import java.util.concurrent.Executors;  
 
 public class DetailUpdator {
     private static final int DATE_STRING_LENGTH = 8;
+    private static ExecutorService FIXED_THREAD_POOL = Executors.newFixedThreadPool(10);
 
-    private class UpdateRunnable {
+    private class UpdateRunnable implements Runnable {
         private String mStockId;
         private Vector<String> mAllExistingDetailFileList;
 
         public UpdateRunnable(String id, Vector<String> existingDetailsFileList ) {
+            super();
             mStockId = id;
             mAllExistingDetailFileList = existingDetailsFileList;
         }
 
         public void run() {
             DetailDealDBHelper dbHelper = new DetailDealDBHelper(mStockId);
+            //dbHelper.dropDatabase();
             String latestDetailTableName = dbHelper.getLatestTableName();
             int existingDetailFileLength = mAllExistingDetailFileList.size();
             for (int i = 0; i < existingDetailFileLength; ++i) {
@@ -29,16 +35,16 @@ public class DetailUpdator {
                 String dateOfDetail = mAllExistingDetailFileList.get(i).replace("/", "");
                 int startPosOfPostFix = dateOfDetail.length() - 4;
                 dateOfDetail = dateOfDetail.substring(startPosOfPostFix - DATE_STRING_LENGTH, startPosOfPostFix);
-                //System.out.println(dateOfDetail + ":" + latestDetailTableName);
+                System.out.println(dateOfDetail + ":" + latestDetailTableName);
 
                 if (latestDetailTableName != null &&
                     latestDetailTableName.compareTo(dateOfDetail) >= 0) {
-                    //System.out.println(dateOfDetail);
+                    System.out.println(dateOfDetail);
                     //ALREADY A TABLE IN DATABSE CORRESPONDING TO THE DETAILFILE, SKIP
                     continue;
                 }
-
                 try {
+                    System.out.println(dateOfDetail + ":" + new Date());
                     TextFileParser parser = new TextFileParser(mAllExistingDetailFileList.get(i));
                     parser.parseFileIntoDealElements();
                     dbHelper.createOriginTable(dateOfDetail);
@@ -47,6 +53,8 @@ public class DetailUpdator {
                     e.printStackTrace();
                 }
             }
+
+            dbHelper.dispose();
         }
     }
 
@@ -104,7 +112,8 @@ public class DetailUpdator {
         String stockId = dirForOneStock.substring(lengthOfStockDetails - 6, lengthOfStockDetails);
         System.out.println("stock id: " + stockId);
         if (existingDetailFiles != null) {
-            UpdateRunnable detailUpdateRunnable = new UpdateRunnable(stockId, existingDetailFiles);
+            Runnable detailUpdateRunnable = new UpdateRunnable(stockId, existingDetailFiles);
+            //FIXED_THREAD_POOL.execute(detailUpdateRunnable);
             detailUpdateRunnable.run();
         }
     }

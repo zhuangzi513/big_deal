@@ -8,7 +8,7 @@ import common.*;
 public class DBHelper<T extends TableRecord> {
     private static final int MAX_CONNECT_TRIES = 5;
     private static final String DB_DIR = "jdbc:mysql://127.0.0.1:3306/";
-    private static final String DB_URL_POST = "?useUnicode=true&characterEncoding=utf-8";
+    private static final String DB_URL_POST = "?useUnicode=true&characterEncoding=utf-8&useSSL=false";
     private static final String TABLE_NAME = "shares_info";
     private static final String USER_NAME = "root";
     private static final String PASS_WD = "123456";
@@ -17,6 +17,7 @@ public class DBHelper<T extends TableRecord> {
     private static final String CHECK_TABLE_SQL_FORMAT = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '%s' AND table_name = '%s'";
     private static final String CREATE_DATABASE_SQL_FORMAT = "CREATE DATABASE IF NOT EXISTS %s CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
     private static final String DELETE_DATABASE_SQL_FORMAT = "DROP DATABASE IF EXISTS %s";
+    private static final String DELETE_TABLE_SQL_FORMAT = "DROP TABLE IF EXISTS %s";
     private static final String LATEST_TABLE_IN_DATABSE_SQL_FORMAT = "SELECT table_name FROM information_schema.tables WHERE table_schema='%s' order by create_time DESC LIMIT 5;";
     private static final String TABLES_IN_DATABSE_SQL_FORMAT = "SELECT table_name FROM information_schema.tables WHERE table_schema='%s' order by  table_name;";
 
@@ -46,14 +47,6 @@ public class DBHelper<T extends TableRecord> {
                tryConnectTimes++ < MAX_CONNECT_TRIES) {
             if (mServerConnection == null) {
                 connectServer();
-            } else {
-                try {
-                    Statement createDBStmt = mServerConnection.createStatement();
-                    String createDBSql = String.format(CREATE_DATABASE_SQL_FORMAT, mDBName);
-                    createDBStmt.executeUpdate(createDBSql);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
             }
 
             try {
@@ -61,7 +54,14 @@ public class DBHelper<T extends TableRecord> {
                 mDBConnection = DriverManager.getConnection(mDBUrl, USER_NAME, PASS_WD);
             } catch (SQLException se){
                 //sLog.log(Level.INFO, "Fail to connect to :" + mDBUrl);
-                se.printStackTrace();
+                System.out.println("Fail to connect to :" + mDBUrl);
+                try {
+                    Statement createDBStmt = mServerConnection.createStatement();
+                    String createDBSql = String.format(CREATE_DATABASE_SQL_FORMAT, mDBName);
+                    createDBStmt.executeUpdate(createDBSql);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 continue;
             } catch (ClassNotFoundException e) {
                 //sLog.log(Level.INFO, e.getMessage());
@@ -71,7 +71,7 @@ public class DBHelper<T extends TableRecord> {
         }
     }
 
-    private void dispose() {
+    public void dispose() {
         if (mDBConnection != null) {
             try {
                 mDBConnection.close();
@@ -109,7 +109,6 @@ public class DBHelper<T extends TableRecord> {
     }
 
     protected void insertRecordsToTable(String table, String sqlFormat, Vector<T> rawRecords) {
-        //System.out.println(sqlFormat + " records inserted");
         try {
             mDBConnection.setAutoCommit(false);
             PreparedStatement insertStatement = mDBConnection.prepareStatement(sqlFormat);
@@ -123,7 +122,7 @@ public class DBHelper<T extends TableRecord> {
 
             insertStatement.executeBatch();
             mDBConnection.commit();
-            System.out.println(recordsCount + " records inserted");
+            System.out.println(mDBName + " : "  + table + " > " + recordsCount + " records inserted");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -136,6 +135,8 @@ public class DBHelper<T extends TableRecord> {
                 createTableStmt.executeUpdate(sqlFormat);
             } catch (SQLException e) {
                 e.printStackTrace();
+                //dropTable(tableName);
+                System.exit(1);
             }
         }
     }
@@ -173,6 +174,26 @@ public class DBHelper<T extends TableRecord> {
 
     public Vector<T> getAllInnerElementsFromTable(String tableName) {
         return null;
+    }
+
+    public void dropDatabase() {
+        String sqlFormat = String.format(DELETE_DATABASE_SQL_FORMAT, mDBName);
+        try {
+            Statement deleteDBStmt = mServerConnection.createStatement();
+            deleteDBStmt.executeUpdate(sqlFormat);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void dropTable(String tableName) {
+        String sqlFormat = String.format(DELETE_TABLE_SQL_FORMAT, tableName);
+        try {
+            Statement createTableStmt = mDBConnection.createStatement();
+            createTableStmt.executeUpdate(sqlFormat);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     protected String getLatestTableName(String tableNamePrefix) {

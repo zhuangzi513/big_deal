@@ -15,6 +15,7 @@ DEP_JARS="
 ./poi/poi-3.15/poi-ooxml-schemas-3.15.jar
 ./poi/poi-3.15/poi-examples-3.15.jar
 ./poi/poi-3.15/poi-3.15.jar
+./libmysql/mysql-connector-java-5.1.39-bin.jar
 "
 for JAR in $DEP_JARS
 do

@@ -51,6 +51,7 @@ public class TextFileParser extends FileParser {
 
     public boolean parseFileIntoDealElements() throws IOException {
         DetailDealElement singleElement = null;
+        Vector<String> textLines = new Vector<String>();
         String textLine = new String("");
         BufferedReader bufferReader = null;
         try {
@@ -62,7 +63,11 @@ public class TextFileParser extends FileParser {
             bufferReader.readLine();
 
             while ((textLine = bufferReader.readLine()) != null) {
-                singleElement = createDetailDealElementFromString(textLine);
+                textLines.add(textLine);
+            }
+
+            for (int i = 0; i < textLines.size(); ++i) {
+                singleElement = createDetailDealElementFromString(textLines.get(i));
                 //System.out.println("singleElement");
                 //singleElement.dump();
                 mInnerDetailDealElements.add(singleElement);

@@ -30,7 +30,7 @@ public class DetailsFilterDBHelper extends DBHelper<DetailFilterResult> {
 
    private static final String SELECT_DATES_ALREADY_COMPUTED = "SELECT Date from %s";
 
-   private static final String SELECT_FILTER_RESULTS_BETWEEN_DATES = "SELECT * from %s where Date > %s and Date < %s";
+   private static final String SELECT_FILTER_RESULTS_BETWEEN_DATES = "SELECT * from %s where Date >= %s and Date <= %s";
 
     private static final String FILTER_RESULT_TABLE_NAME = "FILTER_RESULT_TABLE";
     private static final String DETAIL_DEAL_TABLE_NAME_PREFIX = "D";
@@ -55,6 +55,7 @@ public class DetailsFilterDBHelper extends DBHelper<DetailFilterResult> {
         ResultSet resultSet = selectColsFromTable(FILTER_RESULT_TABLE_NAME, selectFilterResultsSQL);
         Vector<DetailFilterResult> retFilterResults = new Vector<DetailFilterResult>();
         try {
+            int count = 1;
             DetailFilterResult singleFilterResult = null;
             while (resultSet.next()) {
                 singleFilterResult = DetailFilterResult.constructFromResultSet(resultSet);
