@@ -1,0 +1,27 @@
+import numpy as np
+import math
+
+magic_number_t = 3600*4
+
+magic_number_b_0 = 10
+magic_number_b_1 = 20
+magic_number_b_2 = -10
+magic_number_b_3 = -20
+
+o = np.array([[-1, -1.00], [-2, -1.01], [-3, -1.01], [6, -1.01], [4, -1.00]])
+
+def power_of_pair(a,b):
+    #TODO:how to judge the action of (a,b) to be B/S
+    # if b === magic_number_b_*, the B/S may be inverted
+    return a*math.exp(abs(b))
+
+def sum_of_power(arr):
+    sum_power = 0
+    for row in arr:
+        a = row[0]
+        b = row[1]
+        sum_power += power_of_pair(a,b)
+
+    print(sum_power*magic_number_t)
+
+sum_of_power(o)
