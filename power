@@ -14,6 +14,7 @@
    p2）Postive的power持续变大，negtive的power也增大；P/N > 1
    p3）Postive的power逐渐趋于平衡，negtive的power越来越大； P/N = 1
    p4）Negtive的power大于Postive的power；结束
+6）在临界点上，因为Postive已经达到极限，只能被动化解Negtive的输出，所以在临界点上应该把临界点上的输出作为Postive和Negtive的双向输出。
 '''
 
 
@@ -35,12 +36,16 @@ def power_of_pair(a,b):
     return a*math.exp(abs(b))
 
 def sum_of_power(arr):
-    sum_power = 0
+    sum_postive_power = 0
+    sum_negtive_power = 0
     for row in arr:
         a = row[0]
         b = row[1]
-        sum_power += power_of_pair(a,b)
+        if a > 0:
+            sum_postive_power += power_of_pair(a,b)
+        else:
+            sum_negtive_power += power_of_pair(a,b)
 
-    print(sum_power*magic_number_t)
+    print(sum_postive_power, sum_negtive_power)
 
 sum_of_power(o)
