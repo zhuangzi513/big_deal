@@ -9,6 +9,11 @@
    其实更多时候就是要解决POWER这个动能和势能之间的平衡点，当势能达到一个点，而动能的增长无法对抗势能的增长时，就是POWER失效的时候。
 4）每个个体的POWER的累积可能意义不是很大，或者说个体的POWER可能只是偶然因素导致，这样的POWER能量较弱，很快就会被抹平，非我所指。我们需要POWER的增长更可持续，就不能只追求个体的power，而应该去找群体的power。而群体
    如果存在很多个个体有一致行为，那可以在计算power时加上一个T(team)系数，T系数代表着行业的期望值。
+5）在计算power时，不可以只计算一个总和，需要将Postive和Negtive的两种power分别计算，这样方便判断当前状态。随着时间的推移，两种power都会增长。良性的推演方式可能是：
+   p1）Postive的power较大，negtive的power较小；P/N > 1.2
+   p2）Postive的power持续变大，negtive的power也增大；P/N > 1
+   p3）Postive的power逐渐趋于平衡，negtive的power越来越大； P/N = 1
+   p4）Negtive的power大于Postive的power；结束
 '''
 
 
