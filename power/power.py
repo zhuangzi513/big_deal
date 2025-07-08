@@ -15,6 +15,7 @@
    p3）Postive的power逐渐趋于平衡，negtive的power越来越大； P/N = 1
    p4）Negtive的power大于Postive的power；结束
 6）在临界点上，因为Postive已经达到极限，只能被动化解Negtive的输出，所以在临界点上应该把临界点上的输出作为Postive和Negtive的双向输出。
+7）以LV2数据为基础，增量展示20天的power交织情况。
 '''
 
 
