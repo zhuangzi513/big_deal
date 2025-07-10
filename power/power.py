@@ -18,23 +18,21 @@
 7）以LV2数据为基础，增量展示20天的power交织情况。
 '''
 
-
+import pandas as pd
 import numpy as np
 import math
 
-magic_number_t = 3600*4
+columns_name = []
+GLOBAL_PRE_CLOSE = 4.61
 
-magic_number_b_0 = 10
-magic_number_b_1 = 20
-magic_number_b_2 = -10
-magic_number_b_3 = -20
-
-o = np.array([[-1, -1.00], [-2, -1.01], [-3, -1.01], [6, -1.01], [4, -1.00]])
-
-def power_of_pair(a,b):
+def power_of_pair(n, p):
     #TODO:how to judge the action of (a,b) to be B/S
     # if b === magic_number_b_*, the B/S may be inverted
-    return a*math.exp(abs(b))
+    if p > GLOBAL_PRE_CLOSE:
+        diff = (p - GLOBAL_PRE_CLOSE)/GLOBAL_PRE_CLOSE
+    else:
+        diff = (GLOBAL_PRE_CLOSE - p)/GLOBAL_PRE_CLOSE
+    return n*math.exp(1+abs(diff))
 
 def sum_of_power(arr):
     sum_postive_power = 0
@@ -47,6 +45,215 @@ def sum_of_power(arr):
         else:
             sum_negtive_power += power_of_pair(a,b)
 
-    print(sum_postive_power, sum_negtive_power)
 
-sum_of_power(o)
+# o_DN, o_PW = compute_power_of(SUM_DN_ARR, SUM_DP_ARR, BS_PRE)
+def compute_power_of(dn_ARR, dp_ARR, _BS):
+    o_PW = 0.0
+    o_DN = 0
+    for item1, item2 in zip(dn_ARR, dp_ARR):
+        o_PW += power_of_pair(item1, item2)
+        o_DN += item1
+
+    if (_BS == 'B'):
+        return (o_DN, o_PW)
+    elif (_BS == 'S'):
+        return (o_DN, -1*o_PW)
+    else:
+        # if c, default as B
+        return (o_DN, o_PW)
+
+
+def __parse_csv(file_name):
+    df = pd.read_csv(file_name)
+    columns_name = df.columns.tolist()
+    # 00:'CODE'
+    # 01:'day'
+    # 02:'t'
+    # 03:'dn'
+    # 04:'dc'
+    # 05:'cc'
+    # 06:'BS' > B/S/0
+    # 07:'DP' > PRICE
+    # 08:'DN' > NUMBER
+    # 09:'SS' > sequence S
+    # 10:'SB' > sequence B
+    print("列名：", columns_name)
+
+    START_LINE = 0
+    # PRE
+    BS_PRE = 0
+    DP_PRE = 0
+    DN_PRE = 0
+    SS_PRE = 0
+    SB_PRE = 0
+
+    # current
+    SS_ = 0
+    SB_ = 0
+    UN_INITALIZED = True
+
+    BS_OUTPUT = []
+    DP_OUTPUT = []
+    DN_OUTPUT = []
+    SS_OUTPUT = []
+    SB_OUTPUT = []
+    PW_OUTPUT = []
+
+    SUM_DN_ARR = []
+    SUM_DP_ARR = []
+
+    start_new = False
+    # step 1: merge and compute power
+    for index, row in df.iterrows():
+        row_content = row.tolist()
+        if (UN_INITALIZED):
+            if (float(row_content[7]) > 0):
+                UN_INITALIZED = False
+                BS_PRE = row_content[6]
+                DP_PRE = float(row_content[7])
+                DN_PRE = int(row_content[8])
+                SS_PRE = int(row_content[9])
+                SB_PRE = int(row_content[10])
+                # save INFO
+                SUM_DN_ARR.append(DN_PRE)
+                SUM_DP_ARR.append(DP_PRE)
+        else:
+                # merge
+                BS_ = row_content[6]
+                DP_ = float(row_content[7])
+                DN_ = int(row_content[8])
+
+                SS_ = int(row_content[9])
+                SB_ = int(row_content[10])
+
+                # if B/S continue, judge merge or not
+                if BS_ == BS_PRE:
+                    if (BS_ == 'B') and (SB_ == SB_PRE):
+                        # B continues, merge
+                        SUM_DN_ARR.append(DN_)
+                        SUM_DP_ARR.append(DP_)
+                    elif (BS_ == 'S') and (SS_ == SS_PRE):
+                        # S continues, merge
+                        SUM_DN_ARR.append(DN_)
+                        SUM_DP_ARR.append(DP_)
+                    elif (BS_ == ' '):
+                        if (SB_ == 0) and (SB_ == SB_PRE):
+                            # ergency B continues, merge
+                            SUM_DN_ARR.append(DN_)
+                            SUM_DP_ARR.append(DP_)
+                        elif (SS_ == 0) and (SS_ == SS_PRE):
+                            # ergency S continues, merge
+                            SUM_DN_ARR.append(DN_)
+                            SUM_DP_ARR.append(DP_)
+                        else:
+                            start_new = True
+                    else:
+                        start_new = True
+                else:
+                    start_new = True
+
+                if (start_new):
+                    # revert start_new
+                    start_new = False
+                    # end the PRE D
+                    if ((len(SUM_DN_ARR) + len(SUM_DP_ARR)) > 0):
+                        o_DN, o_PW = compute_power_of(SUM_DN_ARR, SUM_DP_ARR, BS_PRE)
+                        if (BS_PRE == 'B'):
+                            SS_OUTPUT.append(0)
+                            SB_OUTPUT.append(SB_PRE)
+                            DN_OUTPUT.append(o_DN)
+                            PW_OUTPUT.append(o_PW)
+                            BS_OUTPUT.append(BS_PRE)
+                        elif (BS_PRE == 'S'):
+                            SS_OUTPUT.append(SS_PRE)
+                            SB_OUTPUT.append(0)
+                            DN_OUTPUT.append(o_DN)
+                            PW_OUTPUT.append(o_PW)
+                            BS_OUTPUT.append(BS_PRE)
+                        elif (BS_PRE == ' '):
+                            # c, count in b / s
+                            # if SS_PRE == 0, it means that ergency S
+                            # as S
+                            if (SS_PRE == 0):
+                                DN_OUTPUT.append(o_DN)
+                                PW_OUTPUT.append(-1*o_PW)
+                                SS_OUTPUT.append(0)
+                                SB_OUTPUT.append(SB_PRE)
+                                BS_OUTPUT.append(BS_PRE)
+                            # if SB_PRE == 0, it means that ergency B
+                            # as B
+                            if (SB_PRE == 0):
+                                DN_OUTPUT.append(o_DN)
+                                PW_OUTPUT.append(o_PW)
+                                SS_OUTPUT.append(SS_PRE)
+                                SB_OUTPUT.append(0)
+                                BS_OUTPUT.append(BS_PRE)
+
+                    SUM_DN_ARR.clear()
+                    SUM_DP_ARR.clear()
+
+                    BS_PRE = row_content[6]
+                    DP_PRE = float(row_content[7])
+                    DN_PRE = int(row_content[8])
+                    SS_PRE = int(row_content[9])
+                    SB_PRE = int(row_content[10])
+                    # save INFO
+                    SUM_DN_ARR.append(DN_PRE)
+                    SUM_DP_ARR.append(DP_PRE)
+
+
+
+    # step 2: sum power
+    #data_output = {
+    #    "BS": BS_OUTPUT,
+    #    "DN": DN_OUTPUT,
+    #    "PW": PW_OUTPUT,
+    #    "SS": SS_OUTPUT,
+    #    "SB": SB_OUTPUT
+    #}
+
+    #o_df = pd.DataFrame(data_output)
+    #o_df.to_csv('output.csv', index=False)
+
+
+    sum_DN_B = 0
+    sum_DN_S = 0
+
+    sum_power_B = 0.0
+    sum_power_S = 0.0
+
+    #for debug
+    #max_power_B = 0.0
+    #max_DN_B = 0.0
+    #max_SB_B = 0.0
+    #max_power_B_index = 0
+    #count = 0
+
+    for o_BS,o_DN,o_PW,o_SS,oSB  in zip(BS_OUTPUT,DN_OUTPUT,PW_OUTPUT,SS_OUTPUT,SB_OUTPUT):
+        print("{:5} {:10} {:25} {:8} {:8}".format(o_BS,o_DN,o_PW,o_SS,oSB))
+        if (o_BS == 'B'):
+            sum_power_B += o_PW
+            sum_DN_B += o_DN
+            # for debug
+            #if (o_PW > max_power_B):
+            #    max_power_B = o_PW
+            #    max_DN_B = o_DN
+            #    max_SB_B = oSB
+            #    max_power_B_index = count
+        elif (o_BS == 'S'):
+            sum_power_S += o_PW
+            sum_DN_S += o_DN
+        #else:
+        #    sum_power_S += -1*o_PW
+        #    sum_power_B += o_PW
+        #count += 1
+
+    print("p_b:", sum_power_B, sum_DN_B)
+    print("p_s:", sum_power_S, sum_DN_S)
+    #print("max power B:", max_power_B, max_DN_B, max_SB_B, max_power_B_index)
+
+
+
+
+# entry
+__parse_csv("./deal.csv")
