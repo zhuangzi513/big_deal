@@ -24,6 +24,16 @@ import math
 
 columns_name = []
 GLOBAL_PRE_CLOSE = 4.61
+BS_OUTPUT = []
+DP_OUTPUT = []
+DN_OUTPUT = []
+SS_OUTPUT = []
+SB_OUTPUT = []
+PW_OUTPUT = []
+SUM_DN_ARR = []
+SUM_DP_ARR = []
+
+g_rowcontent_3_dn_pre = 0
 
 def power_of_pair(n, p):
     #TODO:how to judge the action of (a,b) to be B/S
@@ -50,17 +60,99 @@ def sum_of_power(arr):
 def compute_power_of(dn_ARR, dp_ARR, _BS):
     o_PW = 0.0
     o_DN = 0
+    o_DP = 0.0
     for item1, item2 in zip(dn_ARR, dp_ARR):
         o_PW += power_of_pair(item1, item2)
         o_DN += item1
+        o_DP = item2
 
     if (_BS == 'B'):
-        return (o_DN, o_PW)
+        return (o_DN, o_DP, int(o_PW))
     elif (_BS == 'S'):
-        return (o_DN, -1*o_PW)
+        return (o_DN, o_DP, int(o_PW))
     else:
         # if c, default as B
-        return (o_DN, o_PW)
+        return (o_DN, o_DP, int(o_PW))
+
+def finish_pre(dn_Buffer, dp_Buffer, bs_PRE, ss_PRE, sb_PRE):
+    if ((len(dn_Buffer) + len(dn_Buffer)) == 0):
+        print("skipped: ", dn_Buffer, dp_Buffer)
+    else:
+        o_DN, o_DP, o_PW = compute_power_of(dn_Buffer, dp_Buffer, bs_PRE)
+        # save the continus ops result to ouput
+        if (bs_PRE == 'B'):
+            SS_OUTPUT.append(0)
+            SB_OUTPUT.append(sb_PRE)
+            DN_OUTPUT.append(o_DN)
+            DP_OUTPUT.append(o_DP)
+            PW_OUTPUT.append(o_PW)
+            BS_OUTPUT.append(bs_PRE)
+        elif (bs_PRE == 'S'):
+            SS_OUTPUT.append(ss_PRE)
+            SB_OUTPUT.append(0)
+            DN_OUTPUT.append(o_DN)
+            DP_OUTPUT.append(o_DP)
+            PW_OUTPUT.append(o_PW)
+            BS_OUTPUT.append(bs_PRE)
+        elif (bs_PRE == ' '):
+            # C as another class
+            DN_OUTPUT.append(o_DN)
+            DP_OUTPUT.append(o_DP)
+            PW_OUTPUT.append(o_PW)
+            SS_OUTPUT.append(ss_PRE)
+            SB_OUTPUT.append(sb_PRE)
+            BS_OUTPUT.append(bs_PRE)
+
+    # if start_new == false,
+    # then clear the buffer array
+    SUM_DN_ARR.clear()
+    SUM_DP_ARR.clear()
+
+# if C continues, policy A:
+#  1) _ss == 0, positive S, and considering the continues '_ss == 0' as a S
+#  2) _sb == 0, positive B, and considering the continues '_sb == 0' as a B
+def C_continues_policy_A(dn_ARR, dp_ARR, row_Content, ss_PRE, sb_PRE, _dn, _dp):
+    _start_new = False
+    _ss = row_Content[9]
+    _sb = row_Content[10]
+    if (_sb == 0) and (_sb == sb_PRE):
+        # ergency B continues, merge
+        SUM_DN_ARR.append(_dn)
+        SUM_DP_ARR.append(_dp)
+    elif (_ss == 0) and (_ss == ss_PRE):
+        # ergency S continues, merge
+        SUM_DN_ARR.append(_dn)
+        SUM_DP_ARR.append(_dp)
+    else:
+        _start_new = True
+
+    return _start_new
+
+# if C continues, policy B:
+#  1) considering time continues records as a record, which time continues means that 'time_cur - time_pre < EMS';
+#  2) C after B/S still be a new record.
+def C_continues_policy_B(dn_ARR, dp_ARR, row_Content, ss_PRE, sb_PRE, _dn, _dp):
+    global g_rowcontent_3_dn_pre
+    _start_new = False
+    # convert time string to time-ms is expensive, so count the diff of row_Content[3] instead.
+    cur_dn = row_Content[3]
+    db_diff_cur_and_pre = 0
+
+    if (g_rowcontent_3_dn_pre == 0):
+        g_rowcontent_3_dn_pre = cur_dn
+    else:
+        db_diff_cur_and_pre = cur_dn - g_rowcontent_3_dn_pre
+
+    if (db_diff_cur_and_pre<100):
+        #print("merge: ", g_rowcontent_3_dn_pre, cur_dn)
+        SUM_DN_ARR.append(_dn)
+        SUM_DP_ARR.append(_dp)
+    else:
+        _start_new = True
+
+    g_rowcontent_3_dn_pre = cur_dn
+
+    return _start_new
 
 
 def __parse_csv(file_name):
@@ -92,16 +184,6 @@ def __parse_csv(file_name):
     SB_ = 0
     UN_INITALIZED = True
 
-    BS_OUTPUT = []
-    DP_OUTPUT = []
-    DN_OUTPUT = []
-    SS_OUTPUT = []
-    SB_OUTPUT = []
-    PW_OUTPUT = []
-
-    SUM_DN_ARR = []
-    SUM_DP_ARR = []
-
     start_new = False
     # step 1: merge and compute power
     for index, row in df.iterrows():
@@ -126,6 +208,10 @@ def __parse_csv(file_name):
                 SS_ = int(row_content[9])
                 SB_ = int(row_content[10])
 
+                # because the DP_ is 0 when BS == ' ', so recorrect the DP_of 'BS_ == C'
+                if (BS_ == ' '):
+                    DP_ = DP_PRE
+
                 # if B/S continue, judge merge or not
                 if BS_ == BS_PRE:
                     if (BS_ == 'B') and (SB_ == SB_PRE):
@@ -137,69 +223,38 @@ def __parse_csv(file_name):
                         SUM_DN_ARR.append(DN_)
                         SUM_DP_ARR.append(DP_)
                     elif (BS_ == ' '):
-                        if (SB_ == 0) and (SB_ == SB_PRE):
-                            # ergency B continues, merge
-                            SUM_DN_ARR.append(DN_)
-                            SUM_DP_ARR.append(DP_)
-                        elif (SS_ == 0) and (SS_ == SS_PRE):
-                            # ergency S continues, merge
-                            SUM_DN_ARR.append(DN_)
-                            SUM_DP_ARR.append(DP_)
-                        else:
-                            start_new = True
+                        DP_ = DP_PRE
+                        #start_new = C_continues_policy_A(SUM_DN_ARR, SUM_DP_ARR, row_content, SS_PRE, SB_PRE, DN_, DP_)
+                        start_new = C_continues_policy_B(SUM_DN_ARR, SUM_DP_ARR, row_content, SS_PRE, SB_PRE, DN_, DP_)
                     else:
                         start_new = True
                 else:
+                    # As long as BS_ changes, stop merging
                     start_new = True
 
                 if (start_new):
                     # revert start_new
                     start_new = False
                     # end the PRE D
-                    if ((len(SUM_DN_ARR) + len(SUM_DP_ARR)) > 0):
-                        o_DN, o_PW = compute_power_of(SUM_DN_ARR, SUM_DP_ARR, BS_PRE)
-                        if (BS_PRE == 'B'):
-                            SS_OUTPUT.append(0)
-                            SB_OUTPUT.append(SB_PRE)
-                            DN_OUTPUT.append(o_DN)
-                            PW_OUTPUT.append(o_PW)
-                            BS_OUTPUT.append(BS_PRE)
-                        elif (BS_PRE == 'S'):
-                            SS_OUTPUT.append(SS_PRE)
-                            SB_OUTPUT.append(0)
-                            DN_OUTPUT.append(o_DN)
-                            PW_OUTPUT.append(o_PW)
-                            BS_OUTPUT.append(BS_PRE)
-                        elif (BS_PRE == ' '):
-                            # c, count in b / s
-                            # if SS_PRE == 0, it means that ergency S
-                            # as S
-                            if (SS_PRE == 0):
-                                DN_OUTPUT.append(o_DN)
-                                PW_OUTPUT.append(-1*o_PW)
-                                SS_OUTPUT.append(0)
-                                SB_OUTPUT.append(SB_PRE)
-                                BS_OUTPUT.append(BS_PRE)
-                            # if SB_PRE == 0, it means that ergency B
-                            # as B
-                            if (SB_PRE == 0):
-                                DN_OUTPUT.append(o_DN)
-                                PW_OUTPUT.append(o_PW)
-                                SS_OUTPUT.append(SS_PRE)
-                                SB_OUTPUT.append(0)
-                                BS_OUTPUT.append(BS_PRE)
-
-                    SUM_DN_ARR.clear()
-                    SUM_DP_ARR.clear()
-
+                    finish_pre(SUM_DN_ARR, SUM_DP_ARR, BS_PRE, SS_PRE, SB_PRE)
+                    # then save the current info to PRE
                     BS_PRE = row_content[6]
-                    DP_PRE = float(row_content[7])
                     DN_PRE = int(row_content[8])
                     SS_PRE = int(row_content[9])
                     SB_PRE = int(row_content[10])
+
                     # save INFO
+                    # because the DP_ is 0 when BS == C, so recorrect the DP_of 'BS_ == C'
+                    if (BS_PRE == ' '):
+                        DP_PRE = DP_
+                    else:
+                        DP_PRE = float(row_content[7])
+
                     SUM_DN_ARR.append(DN_PRE)
                     SUM_DP_ARR.append(DP_PRE)
+                #else:
+                    # start_new == false
+                    # merging has been done already
 
 
 
@@ -216,11 +271,13 @@ def __parse_csv(file_name):
     #o_df.to_csv('output.csv', index=False)
 
 
-    sum_DN_B = 0
-    sum_DN_S = 0
+    sum_DN_B = [0, 0, 0, 0, 0, 0]
+    sum_DN_S = [0, 0, 0, 0, 0, 0]
+    sum_DN_C = [0, 0, 0, 0, 0, 0]
 
-    sum_power_B = 0.0
-    sum_power_S = 0.0
+    sum_power_B = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    sum_power_S = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    sum_power_C = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     #for debug
     #max_power_B = 0.0
@@ -229,27 +286,64 @@ def __parse_csv(file_name):
     #max_power_B_index = 0
     #count = 0
 
-    for o_BS,o_DN,o_PW,o_SS,oSB  in zip(BS_OUTPUT,DN_OUTPUT,PW_OUTPUT,SS_OUTPUT,SB_OUTPUT):
-        print("{:5} {:10} {:25} {:8} {:8}".format(o_BS,o_DN,o_PW,o_SS,oSB))
-        if (o_BS == 'B'):
-            sum_power_B += o_PW
-            sum_DN_B += o_DN
-            # for debug
-            #if (o_PW > max_power_B):
-            #    max_power_B = o_PW
-            #    max_DN_B = o_DN
-            #    max_SB_B = oSB
-            #    max_power_B_index = count
-        elif (o_BS == 'S'):
-            sum_power_S += o_PW
-            sum_DN_S += o_DN
-        #else:
-        #    sum_power_S += -1*o_PW
-        #    sum_power_B += o_PW
-        #count += 1
+    for o_BS,o_DN,o_DP,o_PW,o_SS,oSB  in zip(BS_OUTPUT,DN_OUTPUT,DP_OUTPUT,PW_OUTPUT,SS_OUTPUT,SB_OUTPUT):
+        #print("{:5} {:10} {:15} {:25} {:8} {:8}".format(o_BS,o_DN,o_DP,o_PW,o_SS,oSB))
+        if (o_DN > 50000):
+            if (o_BS == 'B'):
+                sum_power_B[0] += o_PW
+                sum_DN_B[0] += o_DN
+            elif (o_BS == 'S'):
+                sum_power_S[0] += o_PW
+                sum_DN_S[0] += o_DN
+            elif (o_BS == ' '):
+                sum_power_C[0] += o_PW
+                sum_DN_C[0] += o_DN
+        elif (o_DN > 40000):
+            if (o_BS == 'B'):
+                sum_power_B[1] += o_PW
+                sum_DN_B[1] += o_DN
+            elif (o_BS == 'S'):
+                sum_power_S[1] += o_PW
+                sum_DN_S[1] += o_DN
+            elif (o_BS == ' '):
+                sum_power_C[1] += o_PW
+                sum_DN_C[1] += o_DN
+        elif (o_DN > 30000):
+            if (o_BS == 'B'):
+                sum_power_B[2] += o_PW
+                sum_DN_B[2] += o_DN
+            elif (o_BS == 'S'):
+                sum_power_S[2] += o_PW
+                sum_DN_S[2] += o_DN
+            elif (o_BS == ' '):
+                sum_power_C[2] += o_PW
+                sum_DN_C[2] += o_DN
+        elif (o_DN > 20000):
+            if (o_BS == 'B'):
+                sum_power_B[3] += o_PW
+                sum_DN_B[3] += o_DN
+            elif (o_BS == 'S'):
+                sum_power_S[3] += o_PW
+                sum_DN_S[3] += o_DN
+            elif (o_BS == ' '):
+                sum_power_C[3] += o_PW
+                sum_DN_C[3] += o_DN
+        else:
+            if (o_BS == 'B'):
+                sum_power_B[4] += o_PW
+                sum_DN_B[4] += o_DN
+            elif (o_BS == 'S'):
+                sum_power_S[4] += o_PW
+                sum_DN_S[4] += o_DN
+            elif (o_BS == ' '):
+                sum_power_C[4] += o_PW
+                sum_DN_C[4] += o_DN
 
-    print("p_b:", sum_power_B, sum_DN_B)
-    print("p_s:", sum_power_S, sum_DN_S)
+
+    for p_b,p_s,p_c in zip (sum_power_B,sum_power_S,sum_power_C):
+        print("{:25} {:25} {:25}".format(p_b, p_s, p_c))
+    for n_b,n_s,n_c in zip (sum_DN_B,sum_DN_S,sum_DN_C):
+        print("{:25} {:25} {:25}".format(n_b, n_s, n_c))
     #print("max power B:", max_power_B, max_DN_B, max_SB_B, max_power_B_index)
 
 
