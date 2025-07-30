@@ -340,8 +340,10 @@ def __parse_csv(file_name):
                 sum_DN_C[4] += o_DN
 
 
+    print("--------------------------------power---------------------------------------")
     for p_b,p_s,p_c in zip (sum_power_B,sum_power_S,sum_power_C):
         print("{:25} {:25} {:25}".format(p_b, p_s, p_c))
+    print("---------------------------------deal---------------------------------------")
     for n_b,n_s,n_c in zip (sum_DN_B,sum_DN_S,sum_DN_C):
         print("{:25} {:25} {:25}".format(n_b, n_s, n_c))
     #print("max power B:", max_power_B, max_DN_B, max_SB_B, max_power_B_index)
